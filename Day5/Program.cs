@@ -14,6 +14,9 @@ namespace Day5
         private static void PartOne()
         {
             string[] data = File.ReadAllLines("./data_test.txt");
+
+            X2YMap map = new X2YMap(data[2..4]);
+            Console.WriteLine();
         }
     }
 }

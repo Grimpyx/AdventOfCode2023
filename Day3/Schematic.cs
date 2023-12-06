@@ -69,7 +69,7 @@ namespace Day3
 
         public string GetColumn(int column)
         {
-            return new string(Enumerable.Range(0, Dimension[0])
+            return new string(Enumerable.Range(0, Dimension[1])
                 .Select(y => Symbols[column, y])
                 .ToArray());
         }
