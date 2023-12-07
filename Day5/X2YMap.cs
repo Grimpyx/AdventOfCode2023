@@ -33,7 +33,9 @@ namespace Day5
             Location = 7
 
         }
-        MapType fromMap, toMap;
+        public MapType FromMap { get; private set; }
+        public MapType ToMap { get; private set; }
+
         private readonly string[] maptypeAsString = new string[]
         {
             "seed",
@@ -46,12 +48,12 @@ namespace Day5
             "location"
         };
 
-        public int[,] values;
+        public long[,] values;
 
-        public X2YMap(MapType fromMap, MapType toMap, int[,] values)
+        public X2YMap(MapType fromMap, MapType toMap, long[,] values)
         {
-            this.fromMap = fromMap;
-            this.toMap = toMap;
+            this.FromMap = fromMap;
+            this.ToMap = toMap;
             this.values = values;
         }
 
@@ -59,32 +61,32 @@ namespace Day5
         public X2YMap(string[] readAllLinesInput)
         {
             string[] x2y = readAllLinesInput[0][..(readAllLinesInput[0].Length-5)].Split('-');
-            for (int i = 0; i < maptypeAsString.Length; i++)
+            for (long i = 0; i < maptypeAsString.Length; i++)
             {
-                if (x2y[0].ToLower() == maptypeAsString[i]) fromMap = (MapType)i;
-                if (x2y[2].ToLower() == maptypeAsString[i]) toMap = (MapType)i;
+                if (x2y[0].ToLower() == maptypeAsString[i]) FromMap = (MapType)i;
+                if (x2y[2].ToLower() == maptypeAsString[i]) ToMap = (MapType)i;
             }
 
             //values = new int[,];
 
-            List<List<int>> list = new List<List<int>>();
-            for (int i = 1; i < readAllLinesInput.Length; i++)
+            List<List<long>> list = new List<List<long>>();
+            for (long i = 1; i < readAllLinesInput.Length; i++)
             {
                 string[] rowNumbersAsString = readAllLinesInput[i].Split(' ');
-                List<int> rowNumbers = new List<int>();
+                List<long> rowNumbers = new List<long>();
                 foreach (string nrString in rowNumbersAsString)
                 {
-                    int nr = int.Parse(nrString);
+                    long nr = long.Parse(nrString);
                     rowNumbers.Add(nr);
-                    Console.WriteLine(nr);
+                    //Console.WriteLine(nr);
                 }
                 list.Add(rowNumbers);
             }
 
-            values = new int[list.Count, list[0].Count];
-            for (int x = 0; x < list.Count; x++)
+            values = new long[list.Count, list[0].Count];
+            for (long x = 0; x < list.Count; x++)
             {
-                for (int y = 0; y < list[0].Count; y++) values[x,y] = list[x][y];
+                for (long y = 0; y < list[0].Count; y++) values[x,y] = list[(int)x][(int)y];
             }
 
             /*Console.Write("x2y: ");
@@ -96,30 +98,34 @@ namespace Day5
         }
 
 
-        public int[] GetColumn(int column)
+        public long[] GetColumn(long column)
         {
             /*return new int[](Enumerable.Range(0, values.GetLength(1))
                 .Select(y => values[column, y])
                 .ToArray());*/
-            int[] intList = new int[values.GetLength(1)]; // GetLength(1) is number of rows
-            for (int i = 0; i < intList.Length; i++) 
+            long[] longList = new long[values.GetLength(0)]; // GetLength(0) is number of rows
+            for (long i = 0; i < values.GetLength(0); i++) 
             {
-                intList[i] = values[column, i];
+                longList[i] = values[i, column];
             }
-            return intList;
+            return longList;
         }
-        public int[] GetRow(int row)
+        public long[] GetRow(long row)
         {
+            if (row < 0 || row >= values.GetLength(0)) return new long[] { -1 };
+
             /*return new int[](Enumerable.Range(0, values.GetLength[0]) // not really sure how this works
                 .Select(x => values[x, row]) // select all x values from a specific row
                 .ToArray());*/
+            //Console.WriteLine("Row length: " + values.GetLength(1));
 
-            int[] intList = new int[values.GetLength(0)]; // GetLength(0) is number of columns
-            for (int i = 0; i < intList.Length; i++) 
+            long[] longList = new long[values.GetLength(1)]; // GetLength(1) is number of columns
+            for (long i = 0; i < values.GetLength(1); i++) 
             {
-                intList[i] = values[i, row];
+                longList[i] = values[row,i];
+                //Console.WriteLine("val: " + intList[i]);
             }
-            return intList;
+            return longList;
         }
     }
 }
