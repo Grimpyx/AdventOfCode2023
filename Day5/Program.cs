@@ -81,6 +81,72 @@ namespace Day5
         private static void PartTwo()
         {
             string[] data = File.ReadAllLines("./data_test.txt");
+            
+            // Define maps
+            List<X2YMap> maps = new List<X2YMap>();
+            List<string> mapAsString = new List<string>();
+            for (long i = 2; i < data.Length; i++) // start at index 2 (skip first line "seeds")
+            {
+                mapAsString.Add(data[i]);
+                if (i + 1 >= data.Length || data[i + 1] == string.Empty) // if next is a blank line
+                {
+                    maps.Add(new X2YMap(mapAsString.ToArray()));
+                    mapAsString.Clear();
+                    i++; // skip the empty line
+                }
+            }
+
+            // They change the way we read the seeds.
+            // Now the first seed value represents the START of the range
+            // Second seed value is the LENGTH of the range
+            string[] seedInputAsString = data[0][7..].Split(' ');
+            long[] seedInput = new long[seedInputAsString.Length];
+            for (long i = 0; i < seedInput.Length; i++)
+            {
+                seedInput[i] = long.Parse(seedInputAsString[i]);
+            }
+
+            List<IntervalLong> seedsRange = new List<IntervalLong>();
+            for (int i = 0; i < seedInput.Length; i += 2) // range number
+            {
+                seedsRange.Add(new IntervalLong(seedInput[i], seedInput[i] + seedInput[i + 1]));
+                //Console.WriteLine("Seed range " + seedInput[i] + " to " + (seedInput[i] + seedInput[i + 1]));
+            }
+
+            /*long counter = 0;
+            foreach (IntervalLong interval in seedsRange)
+            {
+                long lower = FindLocationFromSeed(interval, maps.ToArray()).lower;
+                Console.WriteLine("  >-<<> Lower: " + lower);
+                counter++;
+            }*/
+            Console.WriteLine((X2YMap.MapType)0 + " range " + seedsRange[0].lower + " to " + seedsRange[0].upper);
+            FindLocationFromSeed(seedsRange[0], maps.ToArray());
+
+
+
+
+
+            /*long smallestLocation = long.MaxValue;
+            for (long i = 0; i < seeds.Length; i++) // for each seed
+            {
+                long loc = FindLocationFromSeed(seeds[i], maps.ToArray());
+                if (loc < smallestLocation) smallestLocation = loc;
+                locations.Add(seeds[i], loc);
+            }
+
+            Console.WriteLine("\nAssignment result:");
+            foreach (long key in locations.Keys)
+            {
+                Console.WriteLine($" > Seed {key} leads to location {locations[key]}");
+            }
+            Console.WriteLine($" Lowest value = {smallestLocation}");*/
+        }
+
+        /*
+        private static void PartTwo()
+        {
+            string[] data = File.ReadAllLines("./data_test.txt");
 
 
             // They change the way we read the seeds.
@@ -93,12 +159,12 @@ namespace Day5
                 seedInput[i] = long.Parse(seedInputAsString[i]);
             }
 
-            List<long> seedsRangeLower = new List<long>();
-            List<long> seedsRangeUpper = new List<long>();
+            //List<long> seedsRangeLower = new List<long>();
+            //List<long> seedsRangeUpper = new List<long>();
+            List<IntervalLong> seedsRange = new List<IntervalLong>();
             for (int i = 0; i < seedInput.Length; i += 2) // range number
             {
-                seedsRangeLower.Add(seedInput[i]);
-                seedsRangeLower.Add(seedInput[i] + seedInput[i+1]);
+                seedsRange.Add(new IntervalLong(seedInput[i], seedInput[i] + seedInput[i + 1]));
                 Console.WriteLine("Seed range " + seedInput[i] + " to " + (seedInput[i] + seedInput[i+1]));
             }
             //List<long> seeds = new List<long>(seedInput);
@@ -117,13 +183,11 @@ namespace Day5
                 }
             }
 
-            Dictionary<long, long> locations = new Dictionary<long, long>();
-            long smallestLocation = long.MaxValue;
-            for (int i = 0; i < seeds.Count; i++) // for each seed
+            for (int i = 0; i < seedsRange.Count; i++) // for each seed
             {
-                long loc = FindLocationFromSeed(seedsRangeLower[i], seedsRangeUpper[i], maps.ToArray());
-                if (loc < smallestLocation) smallestLocation = loc;
-                locations.Add(seeds[i], loc);
+                long loc = FindLocationFromSeed(seedsRange[i], maps.ToArray());
+                locations.Add(seedsRange[i].lower, loc);
+                Console.WriteLine(loc);
             }
 
             Console.WriteLine("\nAssignment result:");
@@ -131,9 +195,9 @@ namespace Day5
             {
                 Console.WriteLine($" > Seed {key} leads to location {locations[key]}");
             }
-            Console.WriteLine($" Lowest value = {smallestLocation}");
+            //Console.WriteLine($" Lowest value = {smallestLocation}");
         }
-
+        */
         private static bool writeConsoleOutput = true;
 
         private static long FindLocationFromSeed(long seed, X2YMap[] maps)
@@ -188,12 +252,61 @@ namespace Day5
         }
 
 
-        private static long FindLocationFromSeed(long seedRangeLower, long seedRangeUpper, X2YMap[] maps)
+
+        private static IntervalLong FindLocationFromSeed(IntervalLong seedRange, X2YMap[] maps)
         {
             long destinationRangeStart;
             long sourceRangeStart;
             long rangeLength;
-            return 1;/*
+
+            IntervalLong source = seedRange;
+
+            for (X2YMap.MapType i = 0; i <= X2YMap.MapType.Location; i++)
+            {
+                foreach (X2YMap map in maps) // Checking all maps
+                {
+                    //List<long> destination = new List<long>();
+                    if (map.FromMap == (X2YMap.MapType)i) // pick out the map that we're on
+                    {
+                        //List<IntervalLong> destination = new List<IntervalLong>();
+                        IntervalLong destination = new IntervalLong(-1,-1);
+
+                        // Look at one row at a time
+                        for (long row = 0; row < map.values.GetLength(0); row++)
+                        {
+                            long[] currentRow = map.GetRow(row);
+                            destinationRangeStart = currentRow[0];  // As defined by the assignment
+                            sourceRangeStart = currentRow[1];       // As defined by the assignment
+                            rangeLength = currentRow[2];            // As defined by the assignment
+
+                            // The interval defined by the row
+                            IntervalLong rowInterval = new IntervalLong(sourceRangeStart, sourceRangeStart + rangeLength);
+
+                            // If the intervals intersect at all, we say the destination is the lowest limit of the interval.
+                            // If the previous destination was a smaller number, we keep the old one instead.
+                            // This should lead to this method returning the lowest location
+                            IntervalLong? clampedInterval = seedRange.ClampInterval(rowInterval);
+                            if (clampedInterval == null) continue;
+                            else
+                            {
+                                long diff = destinationRangeStart - sourceRangeStart;
+                                destination = new IntervalLong(clampedInterval.lower + diff, clampedInterval.upper + diff);
+                                Console.Write(" + " + diff + "   ");
+                                goto End;
+                            }
+                        }
+                        Console.Write(" - ");
+                        destination = source;
+
+                        End:
+                        source = destination;
+                        Console.WriteLine((X2YMap.MapType)(i+1) + " range " + destination.lower + " to " + destination.upper);
+                    }
+                }
+            }
+            return source;
+
+            /*
             long source = seed;
             if (writeConsoleOutput) Console.WriteLine("\n\n------------------------ Seed {0} ------------------------", seed);
             for (X2YMap.MapType i = 0; i <= X2YMap.MapType.Location; i++)
@@ -234,9 +347,9 @@ namespace Day5
                     }
                 }
             }
-            return source;*/
+            return source;
 
-            //maps[0]
+            //maps[0]*/
         }
     }
 }
