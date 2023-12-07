@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,17 +65,27 @@ namespace Day5
                 if (x2y[2].ToLower() == maptypeAsString[i]) toMap = (MapType)i;
             }
 
-            values = new int[,];
+            //values = new int[,];
+
+            List<List<int>> list = new List<List<int>>();
             for (int i = 1; i < readAllLinesInput.Length; i++)
             {
                 string[] rowNumbersAsString = readAllLinesInput[i].Split(' ');
-                int[] rowNumbers = new int[rowNumbersAsString.Length];
-                for (int nr = 0; nr < rowNumbers.Length; nr++)
+                List<int> rowNumbers = new List<int>();
+                foreach (string nrString in rowNumbersAsString)
                 {
-
+                    int nr = int.Parse(nrString);
+                    rowNumbers.Add(nr);
+                    Console.WriteLine(nr);
                 }
+                list.Add(rowNumbers);
             }
 
+            values = new int[list.Count, list[0].Count];
+            for (int x = 0; x < list.Count; x++)
+            {
+                for (int y = 0; y < list[0].Count; y++) values[x,y] = list[x][y];
+            }
 
             /*Console.Write("x2y: ");
             for (int i = 0; i < x2y.Length; i++)
