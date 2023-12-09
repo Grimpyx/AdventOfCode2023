@@ -8,7 +8,7 @@ namespace Day6
 {
     public static class DataInterpret
     {
-        public static int[] GetNumbersFrom(string sample, char separationChar)
+        public static int[] GetNumbersArrayFrom(string sample, char separationChar)
         {
             List<int> numbers = new List<int>();
 
@@ -37,6 +37,16 @@ namespace Day6
             // This is a so called collection expression.
             // Creates array from all "IEnumerable entries" in numbers
             return [.. numbers]; 
+        }
+
+        public static string GetNumbersCharsFrom(string sample)
+        {
+            string workedSample = "";
+            foreach (char c in sample)
+            {
+                if (char.IsDigit(c)) workedSample += c;
+            }
+            return workedSample;
         }
     }
 }
