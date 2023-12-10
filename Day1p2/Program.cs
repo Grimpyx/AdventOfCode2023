@@ -15,7 +15,7 @@ string[] list = new string[] {"two1nine",
 "zoneight234",
 "7pqrstsixteen" };
 
-list = File.ReadAllLines("./Input.txt");
+list = File.ReadAllLines("./data_complete.txt");
 
 Console.WriteLine("In the list, these are the numbers:");
 
