@@ -27,11 +27,15 @@ namespace Day7
 
         public int cardValue;
         public char cardLabel;
+
+        // Create card from label
         public Card(char cardLabel)
         {
             this.cardValue = cardMapping[cardLabel];
             this.cardLabel = cardLabel;
         }
+
+        // Create card from value
         public Card(int cardValue)
         {
             this.cardValue = cardValue;
@@ -45,6 +49,7 @@ namespace Day7
             }
         }
 
+        // Parse a string into an array of cards
         public static Card[] CreateCardListFromString(string str)
         {
             List<Card> cards = new List<Card>();
@@ -55,17 +60,20 @@ namespace Day7
             return [..cards];
         }
 
+        // We need to override this to ensure our comparisons work (List.Contains() for example, and also ==)
         public override bool Equals(object? obj)
         {
             Card? other = obj as Card;
             return other != null && other.cardLabel == this.cardLabel;
         }
 
+        // We need to override this to ensure our comparisons work (List.Contains() for example, and also ==)
         public override int GetHashCode()
         {
             return cardLabel.GetHashCode();
         }
 
+        // If we do Console.WriteLine(this) then we can define here what that string interpretation looks like.
         public override string ToString() => new string([cardLabel]);
     }
 }
