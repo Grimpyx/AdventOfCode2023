@@ -54,5 +54,18 @@ namespace Day7
             }
             return [..cards];
         }
+
+        public override bool Equals(object? obj)
+        {
+            Card? other = obj as Card;
+            return other != null && other.cardLabel == this.cardLabel;
+        }
+
+        public override int GetHashCode()
+        {
+            return cardLabel.GetHashCode();
+        }
+
+        public override string ToString() => new string([cardLabel]);
     }
 }

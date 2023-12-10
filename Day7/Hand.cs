@@ -12,30 +12,49 @@ namespace Day7
     {
         public Card[] cards = new Card[5];
         public HandType type;
-        public long handValue;
-        public long highCardValue;
+        public int bet;
+        //public long handValue;
+        //public long highCardValue;
 
-        public Hand(Card[] cards)
+        public Dictionary<Card, int> cardOccurances = new Dictionary<Card, int>() // <cardValue, occurances>
+        {
+            {new Card(2), 0},
+            {new Card(3), 0},
+            {new Card(4), 0},
+            {new Card(5), 0},
+            {new Card(6), 0},
+            {new Card(7), 0},
+            {new Card(8), 0},
+            {new Card(9), 0},
+            {new Card(10),0},
+            {new Card(11),0},
+            {new Card(12),0},
+            {new Card(13),0},
+            {new Card(14),0}
+        };
+
+        public Hand(Card[] cards, int bet)
         {
             this.cards = cards;
 
-            SetHandValues();
-            SetHighCard();
-            SetScaledValue();
+            CalculateType();
+            this.bet = bet;
+            //SetHighCard();
+            //SetScaledValue();
         }
 
         public enum HandType
         {
-            HighCard,
-            OnePair,
-            TwoPair,
-            ThreeOfAKind,
-            FullHouse,
-            FourOfAKind,
-            FiveOfAKind
+            HighCard = 0,
+            OnePair = 1,
+            TwoPair = 2,
+            ThreeOfAKind = 3,
+            FullHouse = 4,
+            FourOfAKind = 5,
+            FiveOfAKind = 6
         }
 
-        Dictionary<HandType, int> handValues = new Dictionary<HandType, int>()
+        /*Dictionary<HandType, int> handValues = new Dictionary<HandType, int>()
         {
             { HandType.HighCard, 0 },
             { HandType.OnePair, 0 },
@@ -55,9 +74,9 @@ namespace Day7
                 s += handValues[(HandType)i];
             }
             return s;
-        }
+        }*/
 
-        private void SetHighCard()
+        /*private void SetHighCard()
         {
             double total = 0;
             foreach (Card c in cards)
@@ -84,10 +103,11 @@ namespace Day7
                 totalValue += handValues[(HandType)i] * (long)Math.Pow(100, i-1);
             }
             handValue = totalValue;
-        }
+        }*/
 
-        private void SetHandValues()
+        private void CalculateType()
         {
+            /*
             List<Card> remainingCards = new List<Card>(cards);
             List<int> sortedCardValue = new List<int>(cards.Select(x => x.cardValue));
             sortedCardValue.Sort();
@@ -100,7 +120,7 @@ namespace Day7
 
                     if (cards[i].cardLabel == cards[j].cardLabel) // if 1 pair exists
                     {
-                        for (int k = 0; k < cards.Length; k++) // 3 of a kind loop
+                        for (int k = 0; k < cards.Length; k++) // 3 of a kind loop & twopair loop
                         {
                             if (k == j || k == i) continue;
 
@@ -157,7 +177,13 @@ namespace Day7
                                 type = HandType.ThreeOfAKind;
                                 goto CheckTwo;
                             }
-                        } // end 3 of a kind loop
+
+                            if (cards[k].cardLabel == cards[j].cardLabel &&
+                                cards[k].cardLabel == cards[i].cardLabel) // if two pair exists
+                            {
+
+                            }
+                        } // end 3 of a kind loop & twopair loop
 
                         for (int k = 0; k < cards.Length; k++) // two pair loop
                         {
@@ -183,7 +209,66 @@ namespace Day7
                 }
             }
             CheckTwo:
-            Console.WriteLine();
+            Console.WriteLine();*/
+
+            foreach (Card card in cards) cardOccurances[card]++;
+
+            //  Determine how many cards
+            List<int> valuesToIntList = cardOccurances.Values.ToList();
+            if (valuesToIntList.Contains(5)) type = HandType.FiveOfAKind;
+            else if (valuesToIntList.Contains(4)) type = HandType.FourOfAKind;
+            else if (valuesToIntList.Contains(3))
+            {
+                if (valuesToIntList.Contains(2)) type = HandType.FullHouse;
+                else type = HandType.ThreeOfAKind;
+            }
+            else if (valuesToIntList.Contains(2))
+            {
+                int numberOfPairs = 0;
+                for (int i = 0; i < valuesToIntList.Count; i++)
+                {
+                    if (valuesToIntList[i] == 2) numberOfPairs++;
+                }
+                if (numberOfPairs == 2) type = HandType.TwoPair;
+                else type = HandType.OnePair;
+            }
+            else type = HandType.HighCard;
+
+            Console.WriteLine(" / Calculating Type for " + this.ToString() + "\n   Type: " + type);
+        }
+
+        public override string ToString()
+        {
+            string? s = "";
+            foreach (var item in cards)
+            {
+                s += item.cardLabel;
+            }
+            return s;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            Hand otherHand = obj as Hand;
+            if (otherHand == null || otherHand.cards.Length != this.cards.Length) return false; // return if null
+
+            bool condition = true; // store condition, condition is that all cards must be the same
+            for (int i = 0; i < otherHand.cards.Length; i++)
+            {
+                condition = condition && (otherHand.cards[i] == this.cards[i]);
+            }
+
+            return condition;
+        }
+
+        public override int GetHashCode()
+        {
+            string s = "";
+            for (int i = 0; i < cards.Length; i++)
+            {
+                s += cards[i].cardLabel;
+            }
+            return s.GetHashCode();
         }
     }
 
