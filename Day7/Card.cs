@@ -8,8 +8,24 @@ namespace Day7
 {
     public class Card
     {
-        readonly Dictionary<char, int> cardMapping = new Dictionary<char, int>()
+        public static readonly Dictionary<char, int> cardMapping = new Dictionary<char, int>()
         {
+            {'J', 1},
+            {'2', 2},
+            {'3', 3},
+            {'4', 4},
+            {'5', 5},
+            {'6', 6},
+            {'7', 7},
+            {'8', 8},
+            {'9', 9},
+            {'T', 10},
+            {'Q', 11},
+            {'K', 12},
+            {'A', 13}
+        };
+        /*{
+
             {'2', 2},
             {'3', 3},
             {'4', 4},
@@ -23,7 +39,7 @@ namespace Day7
             {'Q', 12},
             {'K', 13},
             {'A', 14}
-        };
+        };*/
 
         public int cardValue;
         public char cardLabel;

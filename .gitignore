@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+Day*/data_complete.txt
+Day*/data_completee.txt
+
 # User-specific files
 *.rsuser
 *.suo
