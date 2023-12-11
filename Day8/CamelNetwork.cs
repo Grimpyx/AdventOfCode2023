@@ -78,6 +78,7 @@ namespace Day8
             string[] allNodesEndingWithA = nodes.Keys.Where(x => x.EndsWith('A')).ToArray();
 
             long steps = 0;
+            int printCounter = 0;
             int currentInstructionIndex = 0;
 
             string[] current = allNodesEndingWithA;
@@ -86,10 +87,11 @@ namespace Day8
             bool continueCondition = true;
             while (continueCondition)
             {
-                if (currentInstructionIndex >= instructions.Length)
+                if (currentInstructionIndex >= instructions.Length) currentInstructionIndex = 0;
+                if (printCounter >= 2500000)
                 {
                     Console.WriteLine("steps: " + steps);
-                    currentInstructionIndex = 0;
+                    printCounter = 0;
                 }
 
                 bool allEndsWithZ = true;
@@ -120,6 +122,7 @@ namespace Day8
 
                 currentInstructionIndex++;
                 steps++;
+                printCounter++;
             }
 
             Console.WriteLine($" - After {steps} steps, found the following values ending with Z: ");
