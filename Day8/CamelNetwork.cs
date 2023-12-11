@@ -73,6 +73,66 @@ namespace Day8
             return steps;
         }
 
+        public long FindStepsToReachGhostMode()
+        {
+            string[] allNodesEndingWithA = nodes.Keys.Where(x => x.EndsWith('A')).ToArray();
+
+            long steps = 0;
+            int currentInstructionIndex = 0;
+
+            string[] current = allNodesEndingWithA;
+
+            // loop through instructions
+            bool continueCondition = true;
+            while (continueCondition)
+            {
+                if (currentInstructionIndex >= instructions.Length)
+                {
+                    Console.WriteLine("steps: " + steps);
+                    currentInstructionIndex = 0;
+                }
+
+                bool allEndsWithZ = true;
+                // Every index
+                for (int i = 0; i < current.Length; i++)
+                {
+                    switch (instructions[currentInstructionIndex])
+                    {
+                        case Instruction.Left:
+                            current[i] = nodes[current[i]].Left;
+                            break;
+                        case Instruction.Right:
+                            current[i] = nodes[current[i]].Right;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (current[i].EndsWith('Z')) allEndsWithZ &= true;
+                    else
+                    {
+                        allEndsWithZ &= false;
+                        break; // if this index fails on 1, all fail, so we exit the loop
+                    }
+                }
+
+                continueCondition = !allEndsWithZ;
+
+                currentInstructionIndex++;
+                steps++;
+            }
+
+            Console.WriteLine($" - After {steps} steps, found the following values ending with Z: ");
+            Console.Write("     ");
+            foreach (string c in current)
+            {
+                Console.Write(c + "  ");
+            }
+            Console.WriteLine("\n");
+
+            return steps;
+        }
+
         public struct CamelNext
         {
             public CamelNext(string left, string right)

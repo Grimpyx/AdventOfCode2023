@@ -1,7 +1,5 @@
 ﻿
 using Day8;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 // Answers P1:
 // 457 is too low
@@ -10,4 +8,5 @@ using System.Runtime.InteropServices;
 // Answers P2:
 
 CamelNetwork net = new CamelNetwork(File.ReadAllLines("./data_complete.txt"));
-Console.WriteLine(" > Steps to complete: " + net.FindStepsToReach("AAA", "ZZZ"));
+//Console.WriteLine(" > Steps to complete: " + net.FindStepsToReach("AAA", "ZZZ")); //p1
+Console.WriteLine(" > Steps to complete: " + net.FindStepsToReachGhostMode()); //p2
