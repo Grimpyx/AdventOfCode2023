@@ -270,8 +270,9 @@ namespace Day8
                 currentSource = nextSource;
                 currentInstructionIndex++;
             }
+
+            // this is essentially this: zOffsetFromLoopEnd = firstLoopWithOffsetLength - completeLoopLength
             zOffsetFromLoopEnd -= stepsUntilZ;
-            //Console.WriteLine("Found duplicate at " + currentSource + " after " + totalCounter + " steps.");
             return (stepsUntilZ, zOffsetFromLoopEnd);
         }
 
