@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,6 @@ namespace Day6
             for (int i = 0; i < sample.Length; i++)
             {
                 char currentChar = sample[i];
-                //Console.WriteLine("CurrentChar: " + currentChar);
                 if (currentChar == separationChar || char.IsDigit(currentChar))
                     sampleAsList.Add(currentChar);
             }
@@ -37,6 +37,37 @@ namespace Day6
             // This is a so called collection expression.
             // Creates array from all "IEnumerable entries" in numbers
             return [.. numbers]; 
+        }
+
+        public static long[] GetLongNumbersArrayFrom(string sample, char separationChar)
+        {
+            List<long> numbers = new List<long>();
+
+            // Prune all characters except numbers and the separationChar
+            // String should not contain anything except numbers and separationChar after this
+            List<char> sampleAsList = new List<char>();
+            for (int i = 0; i < sample.Length; i++)
+            {
+                char currentChar = sample[i];
+                if (currentChar == separationChar || char.IsDigit(currentChar) || currentChar == '-')
+                    sampleAsList.Add(currentChar);
+            }
+            string prunedSample = new string(sampleAsList.ToArray());
+
+
+            // Separate into distinct strings with only numbers, and then parse them into integers
+            string[] numbersAsString = prunedSample.Split(separationChar);
+            for (int i = 0; i < numbersAsString.Length; i++)
+            {
+                Console.WriteLine("word: " + numbersAsString[i]);
+                if (numbersAsString[i] == string.Empty) continue; // skips empty strings
+                long nr = long.Parse(numbersAsString[i]);
+                numbers.Add(nr);
+            }
+
+            // This is a so called collection expression.
+            // Creates array from all "IEnumerable entries" in numbers
+            return [.. numbers];
         }
 
         public static string GetNumbersCharsFrom(string sample)
