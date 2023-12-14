@@ -8,9 +8,9 @@ long sumOfAllExtrapolatedTopValues = 0;
 foreach (var item in oh.entries)
 {
     Console.WriteLine("---------------------------------\n" + item.ToPrintedString());
-    item.Extrapolate(1);
+    item.Extrapolate(-1);
     Console.WriteLine(item.ToPrintedString());
-    sumOfAllExtrapolatedTopValues += item.subEntries[0].values.Last();
+    sumOfAllExtrapolatedTopValues += item.subEntries[0].values.First();
 }
 
 

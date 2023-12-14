@@ -50,29 +50,60 @@ namespace Day9
 
         public void Extrapolate(int times)
         {
-            for (int iteration = 0; iteration < times; iteration++)
+            if (times > 0)
             {
-                // Select all Last elements and
-                List<long> lastValues = new List<long>();
-                foreach (SubEntry entry in subEntries)
+                for (int iteration = 0; iteration < times; iteration++)
                 {
-                    lastValues.Add(entry.values[^1]);
+                    // Select all Last elements and
+                    List<long> lastValues = new List<long>();
+                    foreach (SubEntry entry in subEntries)
+                    {
+                        lastValues.Add(entry.values[^1]);
+                    }
+                    lastValues.Reverse(); // we want to count from the bottom, so we reverse the order to make it a bit easier 
+
+
+                    // Generate the extrapolated values
+                    long[] extrapolatedValues = new long[lastValues.Count];
+                    for (int i = 0; i < lastValues.Count; i++)
+                    {
+                        if (i == 0) extrapolatedValues[i] = 0; // special case for the first value which is always 0
+                        else extrapolatedValues[i] = extrapolatedValues[i - 1] + lastValues[i];
+                    }
+
+                    // Merge into the sub entries
+                    for (int i = 0; i < extrapolatedValues.Length; i++)
+                    {
+                        subEntries[i].values.Add(extrapolatedValues[^(i + 1)]);
+                    }
                 }
-                lastValues.Reverse(); // we want to count from the bottom, so we reverse the order to make it a bit easier 
-
-
-                // Generate the extrapolated values
-                long[] extrapolatedValues = new long[lastValues.Count];
-                for (int i = 0; i < lastValues.Count; i++)
+            }
+            else if (times < 0)
+            {
+                for (int iteration = 0; iteration < times * -1; iteration++)
                 {
-                    if (i == 0) extrapolatedValues[i] = 0; // special case for the first value which is always 0
-                    else extrapolatedValues[i] = extrapolatedValues[i - 1] + lastValues[i];
-                }
+                    // Select all Last elements and
+                    List<long> lastValues = new List<long>();
+                    foreach (SubEntry entry in subEntries)
+                    {
+                        lastValues.Add(entry.values[0]);
+                    }
+                    lastValues.Reverse(); // we want to count from the bottom, so we reverse the order to make it a bit easier 
 
-                // Merge into the sub entries
-                for (int i = 0; i < extrapolatedValues.Length; i++)
-                {
-                    subEntries[i].values.Add(extrapolatedValues[^(i+1)]);
+
+                    // Generate the extrapolated values
+                    long[] extrapolatedValues = new long[lastValues.Count];
+                    for (int i = 0; i < lastValues.Count; i++)
+                    {
+                        if (i == 0) extrapolatedValues[i] = 0; // special case for the first value which is always 0
+                        else extrapolatedValues[i] = lastValues[i] - extrapolatedValues[i - 1];
+                    }
+
+                    // Merge into the sub entries
+                    for (int i = 0; i < extrapolatedValues.Length; i++)
+                    {
+                        subEntries[i].values.Insert(0, extrapolatedValues[^(i + 1)]);
+                    }
                 }
             }
         }

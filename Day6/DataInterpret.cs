@@ -59,7 +59,6 @@ namespace Day6
             string[] numbersAsString = prunedSample.Split(separationChar);
             for (int i = 0; i < numbersAsString.Length; i++)
             {
-                Console.WriteLine("word: " + numbersAsString[i]);
                 if (numbersAsString[i] == string.Empty) continue; // skips empty strings
                 long nr = long.Parse(numbersAsString[i]);
                 numbers.Add(nr);

@@ -10,7 +10,6 @@ namespace Day9
     {
         public List<long> values;
         public bool isEnd;
-        //public SubEntry? nextSubEntry;
 
         public SubEntry(List<long> values)
         {
@@ -27,8 +26,6 @@ namespace Day9
             }
 
             isEnd = allIsZero;
-
-            //if (!isEnd) nextSubEntry = GetNextSubEntry();
         }
 
         public SubEntry? GetNextSubEntry()
