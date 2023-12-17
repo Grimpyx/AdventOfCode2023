@@ -11,12 +11,9 @@ namespace Day11
 {
     public class GalaxyMap
     {
-        //int[,] galaxy;
-        //List<Galaxy> galaxyList;
         Dictionary<int, Galaxy> galaxyDict;
         int maxGalaxy_x;
         int maxGalaxy_y;
-
 
 
         public GalaxyMap(string[] readAllLines)
@@ -36,8 +33,8 @@ namespace Day11
                 }
             }
 
-            maxGalaxy_x = (int)galaxyDict.Values.Select(g => g.position.x).Max() + 1;
-            maxGalaxy_y = (int)galaxyDict.Values.Select(g => g.position.y).Max() + 1;
+            maxGalaxy_x = (int)galaxyDict.Values.Select(g => g.position.x).Max() + (int)galaxyDict.Values.Select(g => g.expansions.x).Max() + 1;
+            maxGalaxy_y = (int)galaxyDict.Values.Select(g => g.position.y).Max() + (int)galaxyDict.Values.Select(g => g.expansions.y).Max() + 1;
         }
 
         public void Expand()
@@ -46,20 +43,18 @@ namespace Day11
             Vector2[] galaxyPositions = galaxyDict.Values.Select(g => g.position).ToArray();
             float[] allX = galaxyPositions.Select(x => x.x).ToArray();
             float[] allY = galaxyPositions.Select(x => x.y).ToArray();
-            //bool[] columnContainsGalaxy = new bool[maxGalaxy_x];
-            //bool[] rowContainsGalaxy = new bool[maxGalaxy_y];
-            List<Galaxy> galaxiesToIncrement_x = new List<Galaxy>();
-            List<Galaxy> galaxiesToIncrement_y = new List<Galaxy>();
+
+            maxGalaxy_x = (int)galaxyDict.Values.Select(g => g.position.x).Max() + (int)galaxyDict.Values.Select(g => g.expansions.x).Max() + 1;
+            maxGalaxy_y = (int)galaxyDict.Values.Select(g => g.position.y).Max() + (int)galaxyDict.Values.Select(g => g.expansions.y).Max() + 1;
 
 
             for (int y = 0; y < maxGalaxy_y; y++)
             {
                 if (!allY.Contains(y))
                 {
-                    //Console.WriteLine("Does not contain galaxy in y = " + y);
                     foreach (Galaxy g in galaxies)
                     {
-                        if (g.position.y >= y) galaxiesToIncrement_y.Add(galaxyDict[g.id]);
+                        if (g.position.y >= y) galaxyDict[g.id].expansions.y++; 
                     }
                 }
             }
@@ -67,56 +62,30 @@ namespace Day11
             {
                 if (!allX.Contains(x))
                 {
-                    //Console.WriteLine("Does not contain galaxy in x = " + x);
                     foreach (Galaxy g in galaxies)
                     {
-                        if (g.position.x >= x) galaxiesToIncrement_x.Add(galaxyDict[g.id]);
+                        if (g.position.x >= x) galaxyDict[g.id].expansions.x++;
                     }
                 }
             }
-
-            // Update the galaxy list 
-            foreach (var item in galaxiesToIncrement_x)
-            {
-                item.position.x++;
-            }
-            foreach (var item in galaxiesToIncrement_y)
-            {
-                item.position.y++;
-            }
-
-            // Correct the depth values
-            maxGalaxy_x = (int)galaxyDict.Values.Select(g => g.position.x).Max() + 1;
-            maxGalaxy_y = (int)galaxyDict.Values.Select(g => g.position.y).Max() + 1;
         }
 
 
-        public int GetTotalDistances()
+        public long GetTotalDistances()
         {
-            int totalDistances = 0;
+            long totalDistances = 0;
 
             Galaxy[] galaxies = galaxyDict.Values.ToArray();
             for (int i = 0; i < galaxies.Length; i++)
             {
-                //int shortestDistance = -1;
-
                 Galaxy first = galaxies[i];
-                Galaxy? currentShortestGalaxy = null;
                 for (int j = i + 1; j < galaxies.Length; j++)
                 {
                     Galaxy second = galaxies[j];
 
-                    int dist = (int)(Math.Abs(first.position.y - second.position.y) + Math.Abs(first.position.x - second.position.x));
+                    long dist = (long)(Math.Abs(first.GetScaledPosition.y - second.GetScaledPosition.y) + Math.Abs(first.GetScaledPosition.x - second.GetScaledPosition.x));
                     totalDistances += dist;
-                    /*if (dist < shortestDistance || shortestDistance < 0)
-                    {
-                        currentShortestGalaxy = second;
-                        shortestDistance = dist;
-                    }
-                    */
                 }
-                //if (currentShortestGalaxy != null) Console.WriteLine("Shortest distance found between " + (char)(first.id + '1') + " and " + (char)(currentShortestGalaxy.id + '1') + "    (length: " + shortestDistance + ")");
-                //totalDistances += shortestDistance;
             }
             return totalDistances;
         }
@@ -148,26 +117,32 @@ namespace Day11
         {
             (int, int) baseCursorPos = Console.GetCursorPosition();
 
-            Vector2[] galaxyPositions = galaxyDict.Values.Select(g => g.position).ToArray();
+            Galaxy[] galaxies = galaxyDict.Values.ToArray();
 
+            int maxx = (int)galaxyDict.Values.Select(g => g.position.x).Max() + (int)galaxyDict.Values.Select(g => g.expansions.x).Max() + 1;
+            int maxy = (int)galaxyDict.Values.Select(g => g.position.y).Max() + (int)galaxyDict.Values.Select(g => g.expansions.y).Max() + 1;
+            
             string background = "";
-            for (int i = 0; i < maxGalaxy_y; i++)
+            for (int i = 0; i < maxy; i++)
             {
-                background += new string('.', maxGalaxy_x) + "\n";
+                background += new string('.', maxx) + "\n";
             }
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.Write(background);
 
             Console.ForegroundColor = ConsoleColor.Magenta;
             char counter = '1';
-            foreach (Vector2 gv in galaxyPositions)
+            for (int i = 0; i < galaxies.Length; i++)
             {
-                Console.SetCursorPosition((int)(baseCursorPos.Item1 + gv.x), (int)(baseCursorPos.Item2 + gv.y));
+                Console.SetCursorPosition(
+                    (int)(baseCursorPos.Item1 + galaxies[i].expansions.x + galaxies[i].position.x),
+                    (int)(baseCursorPos.Item2 + galaxies[i].expansions.y + galaxies[i].position.y));
                 Console.Write(counter);
                 counter++;
             }
 
-            Console.SetCursorPosition(0, baseCursorPos.Item2 + maxGalaxy_y + 1);
+
+            Console.SetCursorPosition(0, baseCursorPos.Item2 + maxy + 1);
             Console.ForegroundColor = ConsoleColor.DarkGreen;
         }
 
@@ -175,12 +150,22 @@ namespace Day11
         {
             public int id;
             public Vector2 position;
+            public Vector2 expansions;
+            private static int ExpansionLength = 1000000;
 
             public Galaxy(int id, Vector2 position)
             {
                 this.id = id;
                 this.position = position;
             }
+
+            // When one expansion should represent 1 million steps. All the expansions need to build on one another.
+            // This means that if we would have four expansions, the last expansion would have a distance around (10^6)^4.
+            // Instead we scale it here for when we do calculations, and just use the variable "expansions" to draw correctly.
+            public Vector2 GetScaledPosition => Math.Max(ExpansionLength-1, 1) * expansions + position; // Doing only ExpansionLength is a bit off. but "Math.Max(ExpansionLength-1, 1)" works
+
+
+
 
             public override bool Equals(object? obj)
             {

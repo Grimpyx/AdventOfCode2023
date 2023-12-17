@@ -2,7 +2,7 @@
 using Day10;
 using Day11;
 
-GalaxyMap galaxyMap = new GalaxyMap(File.ReadAllLines("./data_complete.txt"));
+GalaxyMap galaxyMap = new GalaxyMap(File.ReadAllLines("./data_test_p1.txt"));
 
 // Make map of galaxies
 //Console.WriteLine(galaxyMap.GetWritableString() + "\n");
