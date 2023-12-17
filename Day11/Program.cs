@@ -1,2 +1,22 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿
+using Day10;
+using Day11;
+
+GalaxyMap galaxyMap = new GalaxyMap(File.ReadAllLines("./data_complete.txt"));
+
+// Make map of galaxies
+//Console.WriteLine(galaxyMap.GetWritableString() + "\n");
+galaxyMap.WriteFormatted();
+Console.WriteLine("\nExpanded once:");
+galaxyMap.Expand();
+galaxyMap.WriteFormatted();
+
+//Console.WriteLine("\nExpanded twice:");
+//galaxyMap.Expand();
+//galaxyMap.WriteFormatted();
+
+Console.WriteLine(galaxyMap.GetTotalDistances());
+
+//Console.WriteLine(galaxyMap.GetTotalDistances());
+
+// Insert empty spaces (cosmic expansion)
