@@ -87,7 +87,7 @@ namespace Day10
                 //Console.WriteLine("Comparing two vectors: " + otherInstruction.connections[i] + " and " + connections[j] + ".   " + (otherInstruction.connections[i] == connections[j]));
                 if (otherInstruction.connections[i] == coordinate)
                 {
-                    Console.WriteLine($"!!! {otherInstruction.coordinate} is connected to {coordinate}");
+                    //Console.WriteLine($"!!! {otherInstruction.coordinate} is connected to {coordinate}");
                     return true;
                 }
             }

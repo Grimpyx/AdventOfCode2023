@@ -38,5 +38,13 @@ namespace Day10
         }
 
         public override readonly string? ToString() => $"({x},{y})";
+
+
+
+
+        public Vector2 PerpendicularClockwise() => new Vector2(y, -x);
+        public Vector2 PerpendicularCounterClockwise() => new Vector2(-y, x);
+        public static Vector2 PerpendicularClockwise(Vector2 v) => new Vector2(v.y, -v.x);
+        public static Vector2 PerpendicularCounterClockwise(Vector2 v) => new Vector2(-v.y, v.x);
     }
 }
