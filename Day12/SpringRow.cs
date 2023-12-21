@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Day12
 {
-    public class SpringRow
+    public partial class SpringRow
     {
         public int[] continuousGroups;
 
@@ -185,11 +185,17 @@ namespace Day12
                 for (int i = 0; i < groups.Length; i++)
                 {
                     if (groups[i].Length != continuousGroups[i])
+                    {
                         return false;
+                    }
                 }
+
                 return true;
             }
-            else return false;
+            else
+            {
+                return false;
+            }
         }
 
         // For example, if given ..#.#...###. and the consecutiveCharacter is '.', it will return .#.#.###.
@@ -209,7 +215,7 @@ namespace Day12
             return new string(temp.ToArray());
         }
 
-        private string SpringsAsString()
+        public string SpringsAsString()
         {
             string completeSeries = "";
             foreach (var item in springs)
@@ -231,5 +237,7 @@ namespace Day12
             }
             return s;
         }
+
+
     }
 }

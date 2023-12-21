@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Memoization\Memoization.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="data_complete.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
