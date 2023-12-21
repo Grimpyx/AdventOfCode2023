@@ -41,14 +41,16 @@ namespace Day12
             if (isPart2)
             {
                 int[] newContinuousGroups = new int[continuousGroups.Length * 5];
-                List<Condition> newSprings = new List<Condition>(); //new Condition[continuousGroups.Length * 5];
+                List<Condition> newSprings = new List<Condition>();
 
+                // Groups are themselves repeated 5 times
                 for (int i = 0; i < newContinuousGroups.Length; i++)
                 {
                     int j = i % continuousGroups.Length;
                     newContinuousGroups[i] = continuousGroups[j];
                 }
 
+                // The springs are themselves repeated 5 times as well, but we add an extra '?' inbetween each copy.
                 for (int i = 0; i < 5; i++)
                 {
                     if (i != 0) newSprings.Add((Condition)'?');
@@ -60,7 +62,13 @@ namespace Day12
             }
         }
 
-
+        /// <summary>
+        /// My solution to Part 1
+        /// We find all '?', and then loop through all possible combinations.
+        /// We then return the valid number of combinations.
+        /// Very slow method, but works for small datasets (no way for part 2)
+        /// </summary>
+        /// <returns></returns>
         public int ResolveUnknownSprings()
         {
             int validSets = 0;
@@ -75,7 +83,6 @@ namespace Day12
                 Console.WriteLine(" > " + ToString());
             }
 
-            //int indicesWhereThereAreQuestionmarks = springsAsString.Where(x => x == '?').ToArray().Length;
             List<int> indices = new List<int>();
             for (int i = 0; i < springsAsString.Length; i++)
             {
@@ -93,8 +100,6 @@ namespace Day12
             // For three questionmarks the length is 8 (from 0 to 7), meaning in binary from 000 to 111
             for (int i = 0; i < (1 << questionmarks.Length); i++)
             {
-                //int indexOfThis = indices[i];
-
                 // Convert i to series of "." and "#".
                 char[] springConversion = Convert.ToString(i, 2).ToCharArray();
 
