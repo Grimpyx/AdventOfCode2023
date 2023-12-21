@@ -31,6 +31,7 @@ namespace Day13
             rows = new Terrain[mirrors.GetLength(1)][];    // getlength(1) is the length of all nr of x values
             columns = new Terrain[mirrors.GetLength(0)][]; // getlength(0) is the length of all nr of y values
 
+            // Populate the x,y map
             for (int i = 0; i < mirrors.GetLength(1); i++)
             {
                 for (int j = 0; j < mirrors.GetLength(0); j++)
@@ -39,6 +40,7 @@ namespace Day13
                 }
             }
 
+            // All rows in order
             for (int i = 0; i < mirrors.GetLength(1); i++)
             {
                 Terrain[] tarray = new Terrain[mirrors.GetLength(0)];
@@ -49,6 +51,7 @@ namespace Day13
                 rows[i] = tarray;
             }
 
+            // All columns in order
             for (int i = 0; i < mirrors.GetLength(0); i++)
             {
                 Terrain[] tarray = new Terrain[mirrors.GetLength(1)];
@@ -62,6 +65,9 @@ namespace Day13
 
         }
 
+        // Returns the value defined by the task (part 1):
+        // 100 times rows to above the mirrored axis
+        // OR the number of columns to the left of the mirrored axis
         public long Solve()
         {
             long value = 0;
