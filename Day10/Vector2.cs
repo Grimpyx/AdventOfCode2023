@@ -4,6 +4,15 @@ namespace Day10
 {
     public struct Vector2 : IEquatable<Vector2>
     {
+        public static readonly Vector2 up    = new Vector2(0, 1);
+        public static readonly Vector2 down  = new Vector2(0, -1);
+        public static readonly Vector2 left  = new Vector2(-1, 0);
+        public static readonly Vector2 right = new Vector2(1, 0);
+
+        public static readonly Vector2 zero = new Vector2(0, 0);
+        public static readonly Vector2 one = new Vector2(1, 1);
+        public static readonly Vector2 none = new Vector2(-1, -1);
+
         public float x, y;
         public Vector2(float x, float y)
         {
@@ -15,6 +24,7 @@ namespace Day10
 
         public static Vector2 operator +(Vector2 a, Vector2 b) => new Vector2(a.x + b.x, a.y + b.y);
         public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
+        public static Vector2 operator -(Vector2 a) => new Vector2(-a.x, -a.y);
 
         public static Vector2 operator *(Vector2 a, float b) => new Vector2(a.x * b, a.y * b);
         public static Vector2 operator *(float a, Vector2 b) => new Vector2(b.x * a, b.y * a);
@@ -30,8 +40,6 @@ namespace Day10
 
         public override bool Equals(object? obj) => obj is Vector2 coord && Equals(coord);
 
-        public readonly static Vector2 zero = new Vector2(0, 0);
-
         public override int GetHashCode()
         {
             return HashCode.Combine(x, y);
@@ -46,5 +54,9 @@ namespace Day10
         public Vector2 PerpendicularCounterClockwise() => new Vector2(-y, x);
         public static Vector2 PerpendicularClockwise(Vector2 v) => new Vector2(v.y, -v.x);
         public static Vector2 PerpendicularCounterClockwise(Vector2 v) => new Vector2(-v.y, v.x);
+
+
+        public double Magnitude => Math.Sqrt(x * x + y * y);
+        public Vector2 Normalized => new Vector2(x, y) / (float)Magnitude;
     }
 }
