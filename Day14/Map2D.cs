@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Day10;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +11,13 @@ namespace Day14
     public class Map2D<T>
     {
         public T[,] values;
+
+        public static Map2D<T> MakeCopyFrom(Map2D<T> from)
+        {
+            T[,] newrocks = new T[from.ColumnLength, from.RowLength];
+            Array.Copy(from.values, newrocks, from.values.Length);
+            return new Map2D<T>(newrocks);
+        }
 
         public Map2D(T[,] map)
         {
@@ -75,5 +84,52 @@ namespace Day14
             }
 
         }
+
+        public override bool Equals(object? obj)
+        {
+            Map2D<T>? m = obj as Map2D<T>;
+            if (m == null) return false;
+            for (int i = 0; i < values.GetLength(0); i++)
+            {
+                for (int j = 0; j < values.GetLength(1); j++)
+                {
+                    if (!m.values[i,j].Equals(values[i, j])) return false;
+                }
+            }
+            return true;
+        }
+
+        private HashSet<T> _index;
+        public bool Contains(T value)
+        {
+            if (_index == null)
+            {
+                HashSet<T> _index = new HashSet<T>();
+                for (int i = 0; i < values.GetLength(0); i++)
+                {
+                    for (int j = 0; j < values.GetLength(1); j++)
+                    {
+                        _index.Add(values[i, j]);
+                    }
+                }
+            }
+            return _index.Contains(value);
+        }
+
+        public override int GetHashCode()
+        {
+
+            //return HashCode.Combine(values.GetHashCode(), values.GetHashCode());
+            int hash = 17;
+            for (int i = 0; i < ColumnLength; i++)
+            {
+                for (int j = 0; j < RowLength; j++)
+                {
+                    hash = hash * 31 + values[i, j].GetHashCode();
+                }
+            }
+            return hash;
+        }
+
     }
 }

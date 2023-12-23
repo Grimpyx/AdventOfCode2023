@@ -15,6 +15,18 @@ namespace Day14
             this.type = type;
         }
 
+        public override bool Equals(object? obj)
+        {
+            Rock? r = obj as Rock;
+            if (r == null) return false;
+            return type == r.type;
+        }
+
+        public override int GetHashCode()
+        {
+            return type.GetHashCode();
+        }
+
         public override string? ToString()
         {
             return ((char)type).ToString();
