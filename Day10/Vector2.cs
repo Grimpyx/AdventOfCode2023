@@ -20,7 +20,7 @@ namespace Day10
             this.y = y;
         }
 
-        public bool Equals(Vector2 other) => this == other;
+        public bool Equals(Vector2 other) => (x == other.x) && (y == other.y);//this == other;
 
         public static Vector2 operator +(Vector2 a, Vector2 b) => new Vector2(a.x + b.x, a.y + b.y);
         public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
