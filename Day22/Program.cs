@@ -2,13 +2,27 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using V3 = (int x, int y, int z);
 
-Console.WriteLine("Hello, World!");
 
-Part1(); // 617 too high, 517 just  right
+//Part1(); // 617 too high, 51X correct
+Part2(); // 62767 too high, 612XX correct
 Console.WriteLine();
+
+void Part2()
+{
+    Stopwatch sw = Stopwatch.StartNew();
+    //List<Brick> bricks = InterpretInput(File.ReadAllLines("./data_test.txt"));
+    List<Brick> bricks = InterpretInput(File.ReadAllLines("./data_complete.txt"));
+    BrickManager brickManager = new BrickManager(bricks);
+    int bricksThatWillFall = brickManager.GetBricksThatWillFall();
+    sw.Stop();
+
+    Console.WriteLine(" > Nr: " + bricksThatWillFall);
+    Console.WriteLine(" > Took " + sw.ElapsedMilliseconds + "ms");
+    Console.WriteLine();
+}
+
 
 void Part1()
 {
@@ -55,6 +69,146 @@ class BrickManager
         MoveAllBricksDown();
     }
 
+    public int GetBricksThatWillFall()
+    {
+        Dictionary<V3, Brick> coordinateToBrick = new Dictionary<V3, Brick>();
+        foreach (var item1 in allBricks)
+        {
+            foreach (var item2 in item1.GetOccupiedSpace())
+            {
+                coordinateToBrick.Add(item2, item1);
+            }
+        }
+
+        Dictionary<Brick, List<Brick>> allBelowBrick = new Dictionary<Brick, List<Brick>>();
+        Dictionary<Brick, List<Brick>> allAboveBrick = new Dictionary<Brick, List<Brick>>();
+        foreach (var item in allBricks)
+        {
+            HashSet<V3> vs_below = item.GetAllSpacesBelow();
+            HashSet<V3> vs_above = item.GetAllSpacesAbove();
+            List<Brick> allBricksBelow = new List<Brick>();
+            List<Brick> allBricksAbove = new List<Brick>();
+            foreach (var item2 in vs_below)
+            {
+                if (coordinateToBrick.TryGetValue(item2, out Brick brick))
+                {
+                    if (brick != item && !allBricksBelow.Contains(brick))
+                        allBricksBelow.Add(brick);
+                }
+            }
+            foreach (var item2 in vs_above)
+            {
+                if (coordinateToBrick.TryGetValue(item2, out Brick brick))
+                {
+                    if (brick != item && !allBricksAbove.Contains(brick))
+                        allBricksAbove.Add(brick);
+                }
+            }
+
+            allBelowBrick.Add(item, allBricksBelow); // ALL BELOW. If you call allBelowBrick[b] you get all bricks below b
+            allAboveBrick.Add(item, allBricksAbove); // ALL ABOVE. If you call allAboveBrick[b] you get all bricks above b
+        }
+        
+        // Select a brick.
+        // How many bricks will fall at least one step
+        int numberOfBricksThatWillFall = 0;
+        foreach (var brick in allBricks)
+        {
+            HashSet<Brick> bricksThatWillFall = RemovalLeadToFall(brick);
+            numberOfBricksThatWillFall += bricksThatWillFall.Count - 1; // -1 because it counts the first brick parameter
+        }
+        return numberOfBricksThatWillFall;
+
+
+
+        HashSet<Brick> RemovalLeadToFall(Brick brick)
+        {
+            HashSet<Brick> fallenBricks = [];
+
+            PriorityQueue<Brick, int> queue = new PriorityQueue<Brick, int>();
+            int queueWeight = 0;
+
+            // First element we look at is the supplied brick
+            queue.Enqueue(brick, queueWeight);
+            queueWeight++;
+
+            while (queue.Count > 0)
+            {
+                var b = queue.Dequeue();
+                fallenBricks.Add(b); // add it to fallen bricks
+
+                // For all bricks above the current fallen brick
+                foreach (var above in allAboveBrick[b])
+                {
+                    // If (the supports of that above brick) minus (all the already fallen) has any elements it will not fall. Continue.
+                    if (allBelowBrick[above].Except(fallenBricks).Any())
+                        continue;
+
+                    // Otherwise we add it to the queue
+                    queue.Enqueue(above, queueWeight);
+                    queueWeight++;
+                }
+            }
+
+            return fallenBricks;
+
+            /*// For a particular brick B,
+            // All bricks above (ABOVE) it must satisfy the condition:
+            // Among those below ABOVE, at least one needs to NOT be B.
+            // This means B can be safely removed, and the brick above
+            // will still have at least one supporting brick.
+
+            // if All bricks above brick B, has at least 1 other supporting beam that is not B
+
+            // Select all bricks above (A:s) that only has brick B as support, meaning A:s will fall if B is removed
+            //HashSet<Brick> bricksAboveThatWillFall = new HashSet<Brick>();
+            HashSet<Brick> newWillBeDisintegrated = new HashSet<Brick>();
+            foreach (var brick in bricksThatWillDis)
+            {
+                // Select all bricks above
+                var allAboveBricksAndTheirSupports = allAboveBrick[brick].Select(above => (aboveBrick: above, supports: new HashSet<Brick>(allBelowBrick[above]))); // .Where(above => allBelowBrick[above].All(x => x == brick)).ToList();
+
+                foreach (var aboveBrickAndItsSupports in allAboveBricksAndTheirSupports)
+                {
+                    HashSet<Brick> supportsExcludingDisintegrated = [..aboveBrickAndItsSupports.supports.Except(bricksThatWillDis)];
+                    // if this returned list contains more than 0 elements, it has a support that is not getting disintegrated -> wont fall
+                    if (supportsExcludingDisintegrated.Count() <= 0)
+                    {
+                        newWillBeDisintegrated.Add(aboveBrickAndItsSupports.aboveBrick);
+                        totalBefore.Add(aboveBrickAndItsSupports.aboveBrick);
+                    }
+                }
+            }
+            if (newWillBeDisintegrated.Count > 0)
+                totalBefore = RemovalLeadToFall(newWillBeDisintegrated, totalBefore);
+
+            return totalBefore;*/
+
+
+
+
+            /*
+            HashSet<Brick> bricksAboveThatWillFall = allAboveBrick[brick].Where(above => allBelowBrick[above].All(x => x == brick)).ToList();
+            PriorityQueue<Brick, int> priorityQueue = new PriorityQueue<Brick, int>();
+            int queueWeight = 0;
+            priorityQueue.EnqueueRange(bricksAboveThatWillFall, queueWeight);
+            while (priorityQueue.Count > 0)
+            {
+                queueWeight++;
+                Brick dequeuedBrick = priorityQueue.Dequeue();
+                List<Brick> nextBricks = RemovalLeadToFall(dequeuedBrick);
+
+                bricksAboveThatWillFall.AddRange(nextBricks);
+                priorityQueue.EnqueueRange(nextBricks, queueWeight);
+            }
+
+            // Perform same check for all A:s, becuase if they fall it kind of counts as being removed for the sake of analysing falls.
+
+            return bricksAboveThatWillFall;*/
+        }
+    }
+
+
     public int GetBricksThatCanBeRemoved()
     {
         Dictionary<V3, Brick> coordinateToBrick = new Dictionary<V3, Brick>();
@@ -92,10 +246,8 @@ class BrickManager
                 }
             }
 
-
             allBelowBrick.Add(item, allBricksBelow); // ALL BELOW. If you call allBelowBrick[b] you get all bricks below b
             allAboveBrick.Add(item, allBricksAbove); // ALL ABOVE. If you call allAboveBrick[b] you get all bricks above b
-
         }
 
 
@@ -118,7 +270,7 @@ class BrickManager
             // This means B can be safely removed, and the brick above
             // will still have at least one supporting brick.
 
-            // if All bricks above brik B, has at least 1 other supporting beam that is not B
+            // if All bricks above brick B, has at least 1 other supporting beam that is not B
             return allAboveBrick[brick].All(above => allBelowBrick[above].Any(x => x != brick));
         }
     }
