@@ -96,4 +96,113 @@ namespace Day23
             return $"{pos.x}, {pos.y}";
         }
     }
+    class Node
+    {
+        //static HashSet<Node> allNodes;
+        public static Dictionary<V2, Node> allNodesDict;
+        static int idTracker;
+        private int id;
+
+        private V2 position;
+        public Dictionary<Node, int> connectedNodes;
+        V2[] connectedPoints;
+
+        public Node((int x, int y) position, V2[] connectedPoints) //, List<(Node, int)> connectedNodes
+        {
+            this.position = position;
+            //this.connectedNodes = connectedNodes;
+            this.connectedPoints = connectedPoints;
+            connectedNodes = new Dictionary<Node, int>();
+
+            id = idTracker;
+            idTracker++;
+
+            //if (allNodes == null) allNodes = new HashSet<Node>();
+            //allNodes.Add(this);
+            if (allNodesDict == null) allNodesDict = new Dictionary<V2, Node>();
+            allNodesDict.Add(position, this);
+        }
+
+        public void Populate(char[][] map)
+        {
+            int stepCounter = 1;
+
+            Dictionary<V2, int> visited = new Dictionary<V2, int>() { { position, 0 } };
+            Queue<List<V2>> queue = new Queue<List<V2>>();
+            List<V2> surroundingFirst = [..connectedPoints]; //Surrounding(position, [(-1, 0), (1, 0), (0, -1), (0, 1)]);
+            queue.Enqueue(surroundingFirst);
+            //surroundingFirst.ForEach(x => visited.Add(x, stepCounter));
+
+            Console.SetCursorPosition(position.x, position.y);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write('O');
+
+            while (queue.Count > 0)
+            {
+                List<V2> v2s = queue.Dequeue();
+
+                List<V2> nextQueue = new List<V2>();
+                foreach (V2 v in v2s)
+                {
+                    if (visited.ContainsKey(v))
+                        continue;
+
+                    if (allNodesDict.Keys.Contains(v)) // then is a node/intersection
+                    {
+                        Node otherNode = allNodesDict[v];
+                        connectedNodes.Add(otherNode, stepCounter);
+                        continue;
+                    }
+
+                    Console.SetCursorPosition(v.x, v.y);
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write('O');
+
+                    List<V2> surrounding = Surrounding(v, [(-1, 0), (1, 0), (0, -1), (0, 1)]);
+
+                    nextQueue.AddRange(surrounding);
+                    visited.Add(v, stepCounter);
+                }
+                if (nextQueue.Count == 0)
+                    continue;
+
+                queue.Enqueue(nextQueue);
+                //nextQueue.ForEach(x => visited.Add(x, stepCounter));
+                stepCounter++;
+            }
+
+            Console.SetCursorPosition(0, map.Length + 1);
+            Console.ForegroundColor = ConsoleColor.White;
+            
+
+            List<V2> Surrounding(V2 v, V2[] directions) // [(-1, 0), (1, 0), (0, -1)]
+            {
+                List<V2> surrounding = new List<V2>();
+                for (int i = 0; i < directions.Length; i++)
+                {
+                    V2 globalPos = (v.x + directions[i].x, v.y + directions[i].y);
+                    if (map[globalPos.y][globalPos.x] != '#')
+                        surrounding.Add(globalPos);
+                }
+                return surrounding;
+            }
+        }
+
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Node node &&
+                   id == node.id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(position, connectedNodes);
+        }
+
+        public override string? ToString()
+        {
+            return $"ID:{id} ({position.x}, {position.y})";
+        }
+    }
 }

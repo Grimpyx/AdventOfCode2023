@@ -1,5 +1,7 @@
 ﻿using Day23;
+using System.Collections;
 using System.Linq;
+using System.Xml.Linq;
 using V2 = (int x, int y);
 
 
@@ -9,12 +11,65 @@ string testDataPath = "./data_test.txt";
 string completeDataPath = "./data_complete.txt";
 
 
-//Part2();
-Part1();
+Part2();
+//Part1();
 
 void Part2()
 {
+    HashSet<Node> nodes;            // Ways to obtain data from
+    char[][] map;
+    if (useCompleteData) (map, nodes) = InterpretDataP2(completeDataPath);
+    else (map, nodes) = InterpretDataP2(testDataPath);
 
+    V2 startCoordinate = (1, 0);
+    V2 endCoordinate = (map[0].Length - 2, map.Length - 1);
+    FindLongestPath(startCoordinate, endCoordinate);
+
+    void FindLongestPath(V2 start, V2 end)
+    {
+        Node startNode = Node.allNodesDict[start];
+        Node endNode = Node.allNodesDict[end];
+
+        List<(List<Node> nodes, int length)> completedPaths = new List<(List<Node> nodes, int length)>();
+
+        // All paths currently being explored is stored here.
+        Queue<(Node currentNode, HashSet<Node> visitedNodes, int length)> paths = new Queue<(Node currentNode, HashSet<Node> visitedNodes, int length)>();
+        paths.Enqueue((startNode, [], 0)); // Queue start for our first path.
+
+        while (paths.Count > 0)
+        {
+            var currentPath = paths.Dequeue();
+
+            var unvisitedNeighbours = currentPath.currentNode.connectedNodes.Keys.Except(currentPath.visitedNodes);
+            if (unvisitedNeighbours.Any()) // If we have any unvisited neighbours
+            {
+                // For each unvisited neighbour we create a copy of the current path and advances it to that neighbour
+                foreach (var n in unvisitedNeighbours)
+                {
+                    HashSet<Node> newVisitedNodes = [.. currentPath.visitedNodes];
+                    newVisitedNodes.Add(currentPath.currentNode);
+                    paths.Enqueue((n, newVisitedNodes, currentPath.length + currentPath.currentNode.connectedNodes[n]));
+                }
+            }
+            else // Reached dead end
+            {
+                // Check if at end
+                if (currentPath.currentNode == endNode)
+                {
+                    List<Node> completedPathNodes = [.. currentPath.visitedNodes];
+                    completedPathNodes.Add(currentPath.currentNode);
+                    completedPaths.Add((completedPathNodes, currentPath.length));
+                }
+
+                continue;
+            }
+        }
+        /*foreach (var p in completedPaths) // Takes way too long
+        {
+            Console.WriteLine("Path length: " + p.length);
+        }*/
+        Console.WriteLine("Longest path length: " + completedPaths.Select(x => x.length).Max());
+    }
 }
 
 void Part1()
@@ -202,6 +257,78 @@ bool IsWithinBoundsOfMap(V2 v, char[][] map)
     return true;
 }
 
+(char[][] map, HashSet<Node> nodes) InterpretDataP2(string path)
+{
+    string[] data = File.ReadAllLines(path);
+
+    HashSet<Node> nodes = new HashSet<Node>();
+
+    char[][] map = new char[data.Length][];
+    for (int j = 0; j < data.Length; j++)
+    {
+        char[] row = new char[data[0].Length];
+        for (int i = 0; i < data[0].Length; i++)
+        {
+            char d;
+            d = data[j][i];
+            row[i] = d;
+
+            // In part 2 we dont care about these 'v' '^' '<' '>'
+            // Also, instead of "Intersections" I created a list of Nodes instead that I intend to use more like a graph
+            if (j > 1 && i > 1 && j < map.Length - 1 && i < map[0].Length - 1) // If we're NOT on the edge of the map, at least one step in
+            {
+                // How this looks during iteration:
+                // Completed map -> #.#####################
+                // Completed map -> #.................#####  <- y=(j-1)
+                //   Current row -> #########.
+                //                           ^ (i, j)
+                // This becomes:
+                //                  #.#####################
+                //                  #.......XIX.......#####  I is the intersection position
+                //                  #########X               X are the connected points (List<V2> surrounding)
+                List<V2> surrounding = Surrounding(v: (i,j-1), excludedChar: '#', below: data[j][i]); // j-1 because we look at the above tile
+                if (surrounding.Count > 2)
+                    nodes.Add(new Node((i, j - 1), surrounding.ToArray()));
+            }
+        }
+        map[j] = row;
+    }
+
+    // All intersections in the map will be nodes, but we
+    // also need to count the start and the end as nodes too.
+    V2 startCoordinate = (1, 0);
+    V2 endCoordinate = (map[0].Length - 2, map.Length - 1);
+    nodes.Add(new Node(startCoordinate, [(1, 1)]));
+    nodes.Add(new Node(endCoordinate, [(endCoordinate.x, endCoordinate.y - 1)]));
+
+    foreach (var node in nodes)
+    {
+        // Find all connections between the nodes
+        node.Populate(map);
+    }
+
+    return (map, nodes);
+
+    List<V2> Surrounding(V2 v, char excludedChar, char below)
+    {
+        if (map[v.y][v.x] == excludedChar) return new List<V2>();
+
+        List<V2> surrounding = new List<V2>();
+
+        V2[] dir = [(-1, 0), (1, 0), (0, -1)];
+        for (int i = 0; i < dir.Length; i++)
+        {
+            V2 globalPos = (v.x + dir[i].x, v.y + dir[i].y);
+            if (map[globalPos.y][globalPos.x] != excludedChar)
+                surrounding.Add(globalPos);
+        }
+        if (below != excludedChar)
+            surrounding.Add((v.x, v.y + 1));
+
+        return surrounding;
+    }
+}
+
 (char[][] map, HashSet<Intersection> intersections) InterpretDataP1(string path)
 {
     string[] data = File.ReadAllLines(path);
@@ -215,10 +342,11 @@ bool IsWithinBoundsOfMap(V2 v, char[][] map)
         char[] row = new char[data[0].Length];
         for (int i = 0; i < data[0].Length; i++)
         {
-            char d = data[j][i];
+            char d;
+            d = data[j][i];
             row[i] = d;
 
-            if (d == '>' || d == '<' || d == 'v' || d == '^') intersectionParts.Add((i, j));
+            if (data[j][i] == '>' || data[j][i] == '<' || data[j][i] == 'v' || data[j][i] == '^') intersectionParts.Add((i, j));
         }
         map[j] = row;
     }
@@ -231,38 +359,13 @@ bool IsWithinBoundsOfMap(V2 v, char[][] map)
 
         if (map[beforeIntersection.y][beforeIntersection.x] == '#') continue;
 
+        // Find all valid neighbours (not # or .). Having more than 1 of these symbols <>^v it means we have found an intersection
         List<V2> neighbours = GetValidNeighbours(beforeIntersection);
         if (neighbours.Count >= 2) // then it is an intersection
         {
-            if (!intersections.Select(x => x.Pos).Contains(beforeIntersection))
+            if (!intersections.Select(inters => inters.Pos).Contains(beforeIntersection))
                 intersections.Add(new Intersection(beforeIntersection, map));
         }
-
-
-        /*if (NumberOfNeighborsLeadingAway(beforeIntersection) > 1)
-            intersections.Add(beforeIntersection);
-
-
-        int NumberOfNeighborsLeadingAway(V2 startCoord)
-        {
-            if (startCoord.x < 0 || startCoord.y < 0)
-                return 0;
-            if (startCoord.x >= map[0].Length || startCoord.y >= map.Length)
-                return 0;
-
-            int tracker = 0;
-            //V2[] dir = [(-1, 0), (1, 0), (0, -1), (0, 1)];
-            char[] dirChar = ['<', '>', '^', 'v'];
-            for (int i = 0; i < dirChar.Length; i++)
-            {
-                V2 nCoord = (startCoord.x + CharToDirTO(dirChar[i]).x, startCoord.y + CharToDirTO(dirChar[i]).y);
-                if (dirChar[i] == map[nCoord.y][nCoord.x])
-                {
-                    tracker++;
-                }
-            }
-            return tracker;
-        }*/
 
         List<V2> GetValidNeighbours(V2 v)
         {
@@ -280,6 +383,7 @@ bool IsWithinBoundsOfMap(V2 v, char[][] map)
 
     return (map, intersections);
 }
+
 V2 CharToDirTO(char c)
 {
     return c switch
