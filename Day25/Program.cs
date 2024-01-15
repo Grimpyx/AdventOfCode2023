@@ -18,7 +18,7 @@ Part1();
 
 void Part2()
 {
-
+    // There was no part 2!
 }
 void Part1()
 {

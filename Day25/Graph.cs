@@ -68,13 +68,6 @@ namespace Day25
 
             // Create the adjacency matrix
             adjacencyMatrix = new int[allNodes.Count, allNodes.Count];
-            /*for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
-            {
-                for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
-                {
-                    adjacencyMatrix[i, j] = 0;
-                }
-            }*/
 
             // Add all existing connections to the adjacency matrix
             foreach (var node in nodeToConnection)
@@ -132,6 +125,10 @@ namespace Day25
 
             return false; // return isComplete
 
+
+            // Credit to Chris Waters on using weighted randomness.
+            // Without weighted, it just takes way too long (let it run for 3 hours, compared to 13 minutes with weights)
+            // https://github.com/chriswaters78/AdventOfCode2023/blob/main/2023_21/Program.cs#L53
             int GetWeightedRandomNode()
             {
                 int node = -1;
